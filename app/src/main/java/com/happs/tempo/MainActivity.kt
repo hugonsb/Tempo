@@ -30,9 +30,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.*
 import com.happs.tempo.constant.Const.Companion.permissions
 import com.happs.tempo.model.MyLatLong
+import com.happs.tempo.navigation.NavManager
 import com.happs.tempo.network.NetworkResponse
 import com.happs.tempo.ui.theme.TempoTheme
-import com.happs.tempo.view.HomeToday
 import com.happs.tempo.viewModel.TempoViewModel
 import kotlinx.coroutines.coroutineScope
 
@@ -152,7 +152,7 @@ class MainActivity : ComponentActivity() {
             }
 
             is NetworkResponse.Success -> {
-                HomeToday(result.data)
+                NavManager(result.data)
             }
 
             null -> {}

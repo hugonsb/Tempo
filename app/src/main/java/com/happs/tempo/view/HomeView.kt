@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.happs.tempo.R
 import com.happs.tempo.model.WeatherModel
 import java.time.LocalDateTime
@@ -33,7 +34,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun HomeToday(data: WeatherModel) {
+fun HomeView(data: WeatherModel, navHostController: NavHostController) {
     val currentHour = LocalTime.now().hour
 
     // Encontrar o índice do item da hora atual na lista de dados
@@ -78,7 +79,7 @@ fun HomeToday(data: WeatherModel) {
             )
 
             Text(
-                modifier = Modifier.clickable { },
+                modifier = Modifier.clickable { navHostController.navigate("previsaoView") {launchSingleTop = true} },
                 text = "Próximos 7 dias >", fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFFFFFF)
