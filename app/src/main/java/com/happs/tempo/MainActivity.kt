@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.*
 import com.happs.tempo.constant.Const.Companion.permissions
@@ -77,6 +79,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initLocationClient()
+        installSplashScreen()
         setContent {
             TempoTheme {
                 LocationPermissionHandler()
@@ -178,25 +181,6 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun LoadingScreen() {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            Color(0xFF5B4694),
-                            Color(0xFF623E6F)
-                        )
-                    )
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(color = Color.White)
-        }
-    }
-
-    @Composable
     fun WeatherResult() {
         val tempoViewModel =
             ViewModelProvider(LocalContext.current as ComponentActivity)[TempoViewModel::class.java]
@@ -209,22 +193,7 @@ class MainActivity : ComponentActivity() {
             }
 
             is NetworkResponse.Loading -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                listOf(
-                                    Color(0xFF5B4694),
-                                    Color(0xFF623E6F)
-                                )
-                            )
-                        ),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    CircularProgressIndicator(color = Color.White)
-                }
+                LoadingScreen()
             }
 
             is NetworkResponse.Success -> {
@@ -235,4 +204,22 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @Composable
+    private fun LoadingScreen() {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.secondary
+                        )
+                    )
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Color.White)
+        }
+    }
 }

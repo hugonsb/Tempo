@@ -74,4 +74,6 @@ dependencies {
     implementation(libs.converter.gson)
 
     implementation(libs.androidx.runtime.livedata)
+
+    implementation(libs.androidx.core.splashscreen)
 }

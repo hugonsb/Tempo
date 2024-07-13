@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -61,8 +62,8 @@ fun PrevisaoView(data: WeatherModel, navHostController: NavHostController) {
             .background(
                 Brush.verticalGradient(
                     listOf(
-                        Color(0xFF5B4694),
-                        Color(0xFF623E6F)
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.secondary
                     )
                 )
             )
@@ -167,7 +168,7 @@ fun CardPrevisao(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF432667))
+                .background(Color(0xFF340A7A))
                 .animateContentSize(
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioMediumBouncy,
