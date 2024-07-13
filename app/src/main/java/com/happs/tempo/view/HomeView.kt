@@ -80,7 +80,7 @@ fun HomeView(data: WeatherModel, navHostController: NavHostController) {
 
             Text(
                 modifier = Modifier.clickable { navHostController.navigate("previsaoView") {launchSingleTop = true} },
-                text = "Próximos 7 dias >", fontSize = 20.sp,
+                text = "Próximos 6 dias >", fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFFFFFF)
             )
