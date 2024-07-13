@@ -11,6 +11,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -104,6 +105,7 @@ class MainActivity : ComponentActivity() {
     private fun LocationPermissionHandler() {
 
         var hasPermission by remember { mutableStateOf(false) }
+        var isPermissionChecked by remember { mutableStateOf(false) }
         val ctx = LocalContext.current
 
         val launcherMultiplePermissions = rememberLauncherForActivityResult(
@@ -120,6 +122,7 @@ class MainActivity : ComponentActivity() {
                     Toast.makeText(ctx, "Permissão não concedida", Toast.LENGTH_SHORT).show()
                 }
             }
+            isPermissionChecked = true
         }
 
         LaunchedEffect(key1 = Unit, block = {
@@ -132,76 +135,104 @@ class MainActivity : ComponentActivity() {
                     }) {
                     hasPermission = true
                     startLocationUpdate()
+                    isPermissionChecked = true
                 } else {
                     launcherMultiplePermissions.launch(permissions)
                 }
             }
         })
 
-        if (hasPermission) {
-            WeatherResult()
-        } else {
-            // A permissão ainda não foi concedida, então solicitamos ao usuário
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                Color(0xFF5B4694),
-                                Color(0xFF623E6F)
+        when {
+            !isPermissionChecked -> {
+                LoadingScreen()
+            }
+
+            hasPermission -> {
+                WeatherResult()
+            }
+
+            else -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(
+                                    Color(0xFF5B4694),
+                                    Color(0xFF623E6F)
+                                )
                             )
-                        )
-                    ),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                    text = "Este app precisa de permissão de localização para funcionar.",
-                    textAlign = TextAlign.Center,
-                    color = Color.White
-                )
+                        ),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        text = "Este app precisa de permissão de localização para funcionar.",
+                        textAlign = TextAlign.Center,
+                        color = Color.White
+                    )
+                }
             }
         }
     }
-}
 
-@Composable
-fun WeatherResult() {
-    val tempoViewModel =
-        ViewModelProvider(LocalContext.current as ComponentActivity)[TempoViewModel::class.java]
-    val weatherResult by tempoViewModel.weatherResult.observeAsState()
-
-    when (val result = weatherResult) {
-
-        is NetworkResponse.Error -> {
-            Text(text = result.message)
-        }
-
-        is NetworkResponse.Loading -> {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                Color(0xFF5B4694),
-                                Color(0xFF623E6F)
-                            )
+    @Composable
+    fun LoadingScreen() {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color(0xFF5B4694),
+                            Color(0xFF623E6F)
                         )
-                    ),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CircularProgressIndicator(color = Color.White)
-            }
+                    )
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Color.White)
         }
-
-        is NetworkResponse.Success -> {
-            NavManager(result.data)
-        }
-
-        null -> {}
     }
+
+    @Composable
+    fun WeatherResult() {
+        val tempoViewModel =
+            ViewModelProvider(LocalContext.current as ComponentActivity)[TempoViewModel::class.java]
+        val weatherResult by tempoViewModel.weatherResult.observeAsState()
+
+        when (val result = weatherResult) {
+
+            is NetworkResponse.Error -> {
+                Text(text = result.message)
+            }
+
+            is NetworkResponse.Loading -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(
+                                    Color(0xFF5B4694),
+                                    Color(0xFF623E6F)
+                                )
+                            )
+                        ),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator(color = Color.White)
+                }
+            }
+
+            is NetworkResponse.Success -> {
+                NavManager(result.data)
+            }
+
+            null -> {}
+        }
+    }
+
 }

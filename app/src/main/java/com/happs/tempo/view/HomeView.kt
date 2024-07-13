@@ -1,5 +1,7 @@
 package com.happs.tempo.view
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,10 +15,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -29,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.happs.tempo.R
 import com.happs.tempo.model.WeatherModel
+import com.happs.tempo.util.getWeatherIconPainter
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -38,8 +47,16 @@ fun HomeView(data: WeatherModel, navHostController: NavHostController) {
     val currentHour = LocalTime.now().hour
 
     // Encontrar o índice do item da hora atual na lista de dados
-    val currentIndex = data.hourly.time.indexOfFirst {
-        it.substring(11, 13).toInt() == currentHour
+    var currentIndex by remember {
+        mutableIntStateOf(data.hourly.time.indexOfFirst {
+            it.substring(11, 13).toInt() == currentHour
+        })
+    }
+
+    val lazyListState = rememberLazyListState()
+
+    LaunchedEffect(Unit) {
+        lazyListState.animateScrollToItem(currentIndex)
     }
 
     Column(
@@ -57,15 +74,22 @@ fun HomeView(data: WeatherModel, navHostController: NavHostController) {
     ) {
 
         Column(modifier = Modifier.weight(1f)) {
-            CurrentWeatherHourItem(
-                time = data.hourly.time[currentIndex],
-                temperature = data.hourly.temperature_2m[currentIndex],
-                humidity = data.hourly.relative_humidity_2m[currentIndex],
-                apparentTemperature = data.hourly.apparent_temperature[currentIndex],
-                precipitationProbability = data.hourly.precipitation_probability[currentIndex],
-                rain = data.hourly.rain[currentIndex],
-                cloudCoverHigh = data.hourly.cloud_cover_high[currentIndex]
-            )
+            Crossfade(
+                targetState = currentIndex, animationSpec = tween(durationMillis = 800),
+                label = ""
+            ) { selectedIndex ->
+                data.hourly.run {
+                    CurrentWeatherHourItem(
+                        time = time[selectedIndex],
+                        temperature = temperature_2m[selectedIndex],
+                        humidity = relative_humidity_2m[selectedIndex],
+                        apparentTemperature = apparent_temperature[selectedIndex],
+                        precipitationProbability = precipitation_probability[selectedIndex],
+                        rain = rain[selectedIndex],
+                        cloudCoverHigh = cloud_cover_high[selectedIndex]
+                    )
+                }
+            }
         }
 
         Row(
@@ -92,17 +116,17 @@ fun HomeView(data: WeatherModel, navHostController: NavHostController) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        LazyRow {
+        LazyRow(state = lazyListState) {
             items(data.hourly.time.take(24).size) { index ->
-                val hour = data.hourly.time[index].substring(11, 13).toInt()
-                val isCurrentHour = (hour == currentHour)
-
+                val isSelected = (currentIndex == index)
                 WeatherHourItem(
                     time = data.hourly.time[index],
                     temperature = data.hourly.temperature_2m[index],
                     rain = data.hourly.rain[index],
                     cloudCoverHigh = data.hourly.cloud_cover_high[index],
-                    isCurrentHour = isCurrentHour,
+                    isSelectedHour = isSelected,
+                    index = index,
+                    onClick = { currentIndex = it }
                 )
             }
         }
@@ -153,7 +177,16 @@ fun CurrentWeatherHourItem(
 
         Text(text = formattedDateTime, fontSize = 20.sp, color = Color.White)
 
-        Text(text = "Dados da sua localização atual", fontSize = 10.sp, color = Color.White)
+        Spacer(modifier = Modifier.height(5.dp))
+
+        Text(
+            text = "Dados da sua localização atual\nopen-meteo.com",
+            fontSize = 10.sp,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            lineHeight = 10.sp
+        )
+
 
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -240,7 +273,9 @@ fun WeatherHourItem(
     temperature: Double,
     rain: Double,
     cloudCoverHigh: Int,
-    isCurrentHour: Boolean,
+    isSelectedHour: Boolean,
+    index: Int,
+    onClick: (Int) -> Unit
 ) {
 
     val dateTime = LocalDateTime.parse(time, DateTimeFormatter.ISO_LOCAL_DATE_TIME).hour
@@ -251,11 +286,12 @@ fun WeatherHourItem(
 
     Card(
         shape = RoundedCornerShape(15.dp),
-        modifier = Modifier.padding(end = 10.dp)
+        modifier = Modifier.padding(end = 10.dp),
+        onClick = { onClick(index) }
     ) {
         Column(
             modifier = Modifier
-                .background(if (isCurrentHour) Color(0xFF671EE6) else Color(0xFF331763))
+                .background(if (isSelectedHour) Color(0xFF671EE6) else Color(0xFF331763))
                 .padding(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -270,18 +306,4 @@ fun WeatherHourItem(
             Text(text = "$temperature °C", color = Color.White, fontSize = 15.sp)
         }
     }
-}
-
-@Composable
-fun getWeatherIconPainter(isNightTime: Boolean, rain: Double, cloudCoverHigh: Int) = when {
-    isNightTime && rain in 0.1..0.5 -> painterResource(id = R.drawable.chuva_noite)
-    isNightTime && rain in 0.5..Double.MAX_VALUE -> painterResource(id = R.drawable.chuva_forte)
-    isNightTime && cloudCoverHigh in 21..80 -> painterResource(id = R.drawable.nublado_noite)
-    isNightTime && cloudCoverHigh in 81..100 -> painterResource(id = R.drawable.muitas_nuvens_noite)
-    isNightTime -> painterResource(id = R.drawable.lua)
-    rain in 0.1..0.5 -> painterResource(id = R.drawable.chuva_com_sol)
-    rain in 0.5..Double.MAX_VALUE -> painterResource(id = R.drawable.chuva_forte)
-    cloudCoverHigh in 21..80 -> painterResource(id = R.drawable.nublado)
-    cloudCoverHigh in 81..100 -> painterResource(id = R.drawable.muitas_nuvens)
-    else -> painterResource(id = R.drawable.sol)
 }
