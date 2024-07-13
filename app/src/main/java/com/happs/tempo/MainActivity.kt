@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,17 +20,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.*
 import com.happs.tempo.constant.Const.Companion.permissions
-import com.happs.tempo.model.MyLatLong
 import com.happs.tempo.navigation.NavManager
 import com.happs.tempo.network.NetworkResponse
 import com.happs.tempo.ui.theme.TempoTheme
@@ -73,29 +72,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         initLocationClient()
         setContent {
-
-            var currentLocation by remember { mutableStateOf(MyLatLong(0.0, 0.0)) }
             val tempoViewModel = ViewModelProvider(this)[TempoViewModel::class.java]
-
-            locationCallback = object : LocationCallback() {
-                override fun onLocationResult(p0: LocationResult) {
-                    super.onLocationResult(p0)
-                    for (location in p0.locations) {
-                        currentLocation = MyLatLong(
-                            location.latitude,
-                            location.longitude
-                        )
-                        if (!isUpdated) {
-                            isUpdated = true
-                            tempoViewModel.updateLocation(location.latitude, location.longitude)
-                        }
-                    }
-                }
-            }
-
             val ctx = LocalContext.current
             TempoTheme {
-                MyScreen(ctx, currentLocation, tempoViewModel)
+                MyScreen(ctx, tempoViewModel)
             }
 
         }
@@ -103,27 +83,42 @@ class MainActivity : ComponentActivity() {
 
     private fun initLocationClient() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(p0: LocationResult) {
+                super.onLocationResult(p0)
+                for (location in p0.locations) {
+                    if (!isUpdated) {
+                        isUpdated = true
+                        val tempoViewModel =
+                            ViewModelProvider(this@MainActivity)[TempoViewModel::class.java]
+                        tempoViewModel.updateLocation(location.latitude, location.longitude)
+                    }
+                }
+            }
+        }
     }
 
     @Composable
-    private fun MyScreen(ctx: Context, currentLocation: MyLatLong, tempoViewModel: TempoViewModel) {
+    private fun MyScreen(ctx: Context, tempoViewModel: TempoViewModel) {
 
         val weatherResult by tempoViewModel.weatherResult.observeAsState()
 
         val launcherMultiplePermissions = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissionMap ->
-            val areGranted = permissionMap.values.reduce { accepted, next -> accepted && next }
-            if (areGranted) {
-                locationRequired = true
-                startLocationUpdate()
-                Toast.makeText(ctx, "Permission Granted", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(ctx, "Permission Denied", Toast.LENGTH_SHORT).show()
+            if (permissionMap.isNotEmpty()) {
+                val areGranted = permissionMap.values.reduce { accepted, next -> accepted && next }
+                if (areGranted) {
+                    locationRequired = true
+                    startLocationUpdate()
+                    Toast.makeText(ctx, "Permission Granted", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(ctx, "Permission Denied", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
-        LaunchedEffect(key1 = currentLocation, block = {
+        LaunchedEffect(key1 = Unit, block = {
             coroutineScope {
                 if (permissions.all {
                         ContextCompat.checkSelfPermission(
@@ -145,11 +140,20 @@ class MainActivity : ComponentActivity() {
 
             is NetworkResponse.Loading -> {
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(
+                                    Color(0xFF5B4694),
+                                    Color(0xFF623E6F)
+                                )
+                            )
+                        ),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = Color.White)
                 }
             }
 

@@ -79,7 +79,11 @@ fun HomeView(data: WeatherModel, navHostController: NavHostController) {
             )
 
             Text(
-                modifier = Modifier.clickable { navHostController.navigate("previsaoView") {launchSingleTop = true} },
+                modifier = Modifier.clickable {
+                    navHostController.navigate("previsaoView") {
+                        launchSingleTop = true
+                    }
+                },
                 text = "Próximos 6 dias >", fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFFFFFFFF)
@@ -145,11 +149,13 @@ fun CurrentWeatherHourItem(
             color = Color.White
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Text(text = formattedDateTime, fontSize = 20.sp, color = Color.White)
 
-        Spacer(modifier = Modifier.height(60.dp))
+        Text(text = "Dados da sua localização atual", fontSize = 10.sp, color = Color.White)
+
+        Spacer(modifier = Modifier.height(40.dp))
 
         Card {
             Row(

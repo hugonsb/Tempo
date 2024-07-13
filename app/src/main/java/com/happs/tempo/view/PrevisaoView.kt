@@ -1,5 +1,8 @@
 package com.happs.tempo.view
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -140,12 +143,18 @@ fun CardPrevisao(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFF432667))
-
+                .animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Row(
                 modifier = Modifier
-                    .fillMaxSize().padding(vertical = 20.dp),
+                    .fillMaxSize()
+                    .padding(vertical = 20.dp),
                 horizontalArrangement = Arrangement.Center
             ) {
                 Image(
@@ -257,6 +266,17 @@ fun CardPrevisao(
                         )
                     }
                 }
+                Icon(
+                    tint = Color.White,
+                    painter = painterResource(id = R.drawable.baseline_arrow_drop_up_24),
+                    contentDescription = null
+                )
+            } else {
+                Icon(
+                    tint = Color.White,
+                    painter = painterResource(id = R.drawable.baseline_arrow_drop_down_24),
+                    contentDescription = null
+                )
             }
         }
     }
