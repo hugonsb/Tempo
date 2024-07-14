@@ -3,7 +3,7 @@ Aplicativo que mostra a previsão do tempo no local exato que o usuário está.
 API utilizada [(Open-Meteo)](https://open-meteo.com/).
 
 ## Tecnologias
-- Framework Compose
+- Framework Jetpack Compose
 - Android nativo
 - Retrofit
 - Livedata
