@@ -8,6 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -168,7 +169,7 @@ fun CardPrevisao(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF340A7A))
+                .background(Color(0xFF432667))
                 .animateContentSize(
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioMediumBouncy,
@@ -177,50 +178,55 @@ fun CardPrevisao(
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column {
-                AnimatedContent(
-                    targetState = currentIndex, label = "",
-                ) { targetIndex ->
-                    Column(
-                        modifier = Modifier.fillMaxSize()
+
+            AnimatedContent(
+                targetState = currentIndex, label = "",
+            ) { targetIndex ->
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp, start = 10.dp, end = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
+                        Text(
+                            text = "$formattedDateTime\n$formattedDateHour",
+                            textAlign = TextAlign.Center,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+
+                        Spacer(modifier = Modifier.fillMaxWidth(0.1f))
+
+
+                        Image(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(vertical = 20.dp),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Image(
-                                modifier = Modifier.size(90.dp),
-                                painter = painter,
-                                contentDescription = null
+                                .size(40.dp),
+                            painter = painter,
+                            contentDescription = null
+                        )
+
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                modifier = Modifier.align(Alignment.CenterEnd),
+                                text = "${temperatureChunk[currentIndex]} °C",
+                                fontSize = 30.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
                             )
-                            Column(
-                                modifier = Modifier.fillMaxSize(0.7f),
-                                verticalArrangement = Arrangement.Bottom,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = formattedDateTime,
-                                    fontSize = 30.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White,
-                                )
-                                Text(
-                                    text = formattedDateHour,
-                                    fontSize = 40.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White,
-                                )
-                            }
                         }
+                    }
+
+                    if (expanded) {
 
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 15.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceAround
+                                .padding(horizontal = 5.dp, vertical = 20.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Image(
@@ -285,11 +291,11 @@ fun CardPrevisao(
                                     fontWeight = FontWeight.Bold
                                 )
                             }
+
                         }
                     }
                 }
             }
-
 
             if (expanded) {
                 LazyRow(
