@@ -225,7 +225,7 @@ fun CardPrevisao(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 5.dp, vertical = 20.dp),
+                                .padding(top = 30.dp, start = 10.dp, end = 10.dp, bottom = 30.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
