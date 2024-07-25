@@ -4,10 +4,10 @@ API utilizada [(Open-Meteo)](https://open-meteo.com/).
 
 ## Tecnologias
 - Framework Jetpack Compose
-- Android nativo
 - Retrofit
 - Livedata
-- Pattern MVVM
+- Dependency Injection (Koin)
+- Design Pattern (MVVM)
 - SplashScreen
 
 ## Prévias
