@@ -4,14 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.happs.tempo.api.RetrofitInstance
+import com.happs.tempo.api.OpenMeteoApi
 import com.happs.tempo.model.WeatherModel
 import com.happs.tempo.network.NetworkResponse
 import kotlinx.coroutines.launch
 
-class TempoViewModel : ViewModel() {
-
-    private val openMeteoApi = RetrofitInstance.openMeteoApi
+class TempoViewModel(private val openMeteoApi: OpenMeteoApi) : ViewModel() {
 
     private val _weatherResult = MutableLiveData<NetworkResponse<WeatherModel>>()
     val weatherResult: LiveData<NetworkResponse<WeatherModel>> = _weatherResult

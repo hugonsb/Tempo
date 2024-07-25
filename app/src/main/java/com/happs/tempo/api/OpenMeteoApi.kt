@@ -8,7 +8,6 @@ import retrofit2.http.QueryMap
 interface OpenMeteoApi {
     @GET("/v1/forecast")
     suspend fun getWeatherData(
-
         @QueryMap options: Map<String, String>
     ): Response<WeatherModel>
 }

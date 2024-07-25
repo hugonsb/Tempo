@@ -11,12 +11,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,13 +32,20 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.gms.location.*
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.happs.tempo.constant.Const.Companion.permissions
 import com.happs.tempo.navigation.NavManager
 import com.happs.tempo.network.NetworkResponse
 import com.happs.tempo.ui.theme.TempoTheme
+import com.happs.tempo.util.LoadingScreen
 import com.happs.tempo.viewModel.TempoViewModel
 import kotlinx.coroutines.coroutineScope
+import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -182,8 +186,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun WeatherResult() {
-        val tempoViewModel =
-            ViewModelProvider(LocalContext.current as ComponentActivity)[TempoViewModel::class.java]
+        val tempoViewModel = koinViewModel<TempoViewModel>()
         val weatherResult by tempoViewModel.weatherResult.observeAsState()
 
         when (val result = weatherResult) {
@@ -201,25 +204,6 @@ class MainActivity : ComponentActivity() {
             }
 
             null -> {}
-        }
-    }
-
-    @Composable
-    private fun LoadingScreen() {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.secondary
-                        )
-                    )
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(color = Color.White)
         }
     }
 }

@@ -69,11 +69,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
     implementation (libs.retrofit)
     implementation(libs.converter.gson)
-
     implementation(libs.androidx.runtime.livedata)
-
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.koin.androidx.compose)
+    implementation (libs.koin.android)
 }
